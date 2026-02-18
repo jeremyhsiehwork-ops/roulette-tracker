@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --md-primary: #1a73e8;   /* Google 藍 [web:57][web:54] */
+      --md-primary: #1a73e8;
       --md-primary-dark: #1557b0;
       --md-surface: #ffffff;
       --md-bg: #f1f3f4;
@@ -38,7 +38,6 @@
       padding: 16px;
     }
 
-    /* 頂部 App Bar */
     .app-bar {
       position: sticky;
       top: 0;
@@ -62,12 +61,11 @@
       color: var(--md-text-sub);
     }
 
-    /* 卡片容器 */
     .card {
       background-color: var(--md-surface);
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3),
-                  0 1px 2px rgba(60, 64, 67, 0.15); /* Google 風陰影 [web:56] */
+                  0 1px 2px rgba(60, 64, 67, 0.15);
       padding: 16px 20px;
       margin-top: 16px;
       border: 1px solid rgba(223, 225, 229, 0.7);
@@ -90,7 +88,6 @@
       color: var(--md-text-sub);
     }
 
-    /* 小統計 pill */
     .pill {
       display: inline-flex;
       align-items: center;
@@ -102,7 +99,6 @@
       background-color: #f8f9fa;
     }
 
-    /* 表單區 */
     .form-row {
       display: flex;
       flex-wrap: wrap;
@@ -142,7 +138,6 @@
       box-shadow: 0 0 0 1px rgba(26, 115, 232, .25);
     }
 
-    /* 按鈕 Material 風 */
     .btn {
       border-radius: 999px;
       border: none;
@@ -187,7 +182,6 @@
       transform: scale(0.98);
     }
 
-    /* 統計 summary grid */
     .summary-box {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -220,7 +214,6 @@
       color: var(--md-text-sub);
     }
 
-    /* 數據表 */
     table {
       border-collapse: collapse;
       width: 100%;
@@ -262,7 +255,6 @@
       background-color: var(--md-surface);
     }
 
-    /* 顏色 badge */
     .chip {
       display: inline-flex;
       align-items: center;
@@ -286,11 +278,55 @@
       background-color: #188038;
     }
 
-    /* footer note */
     .footer-note {
       margin: 18px 4px 4px;
       font-size: 11px;
       color: var(--md-text-sub);
+    }
+
+    /* 熱門數字榜 table 風格 */
+    .hot-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .hot-table th,
+    .hot-table td {
+      border-bottom: 1px solid #e0e0e0;
+      padding: 6px 4px;
+      text-align: center;
+    }
+
+    .hot-table th {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-text-sub);
+      background-color: #f8f9fa;
+    }
+
+    .hot-rank {
+      font-size: 12px;
+      color: var(--md-text-sub);
+    }
+
+    .hot-number {
+      font-weight: 500;
+    }
+
+    .hot-bar-wrap {
+      width: 100%;
+      background-color: #e8f0fe;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 6px;
+    }
+
+    .hot-bar {
+      height: 100%;
+      background-color: var(--md-primary);
+      transition: width 0.2s ease-out;
     }
 
     @media (max-width: 600px) {
@@ -386,6 +422,27 @@
       </div>
     </section>
 
+    <!-- 熱門數字榜卡片 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">熱門數字榜</div>
+        <div class="card-meta">依出現次數排序，最多顯示前 10 個號碼</div>
+      </div>
+
+      <table class="hot-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>號碼</th>
+            <th>次數</th>
+            <th>佔比</th>
+            <th style="width:40%;">頻率條</th>
+          </tr>
+        </thead>
+        <tbody id="hotNumbersBody"></tbody>
+      </table>
+    </section>
+
     <!-- 歷史記錄卡片 -->
     <section class="card">
       <div class="card-header">
@@ -416,7 +473,7 @@
   </main>
 
   <script>
-    // 典型歐式輪盤紅色號碼列表 [web:51][web:57]
+    // 典型歐式輪盤紅色號碼列表 [web:73]
     const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     const numberInput = document.getElementById('number');
@@ -424,6 +481,7 @@
     const addSpinBtn = document.getElementById('addSpin');
     const clearAllBtn = document.getElementById('clearAll');
     const historyBody = document.getElementById('historyBody');
+    const hotNumbersBody = document.getElementById('hotNumbersBody');
     const spinCountSpan = document.getElementById('spinCount');
 
     const sumTotal = document.getElementById('sumTotal');
@@ -434,4 +492,244 @@
     const sumBlackPct = document.getElementById('sumBlackPct');
     const sumGreenPct = document.getElementById('sumGreenPct');
     const sumOdd = document.getElementById('sumOdd');
-    const sumEven = document.getElementById('sumEve
+    const sumEven = document.getElementById('sumEven');
+    const sumOddPct = document.getElementById('sumOddPct');
+    const sumEvenPct = document.getElementById('sumEvenPct');
+    const sumLow = document.getElementById('sumLow');
+    const sumHigh = document.getElementById('sumHigh');
+    const sumLowPct = document.getElementById('sumLowPct');
+    const sumHighPct = document.getElementById('sumHighPct');
+
+    let spins = [];
+
+    function loadFromStorage() {
+      const saved = localStorage.getItem('roulette_spins_v1');
+      if (saved) {
+        try {
+          spins = JSON.parse(saved);
+        } catch (e) {
+          spins = [];
+        }
+      }
+      renderAll();
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('roulette_spins_v1', JSON.stringify(spins));
+    }
+
+    function autoColor(num) {
+      if (num === 0) return 'green';
+      return RED_NUMBERS.has(num) ? 'red' : 'black';
+    }
+
+    function addSpin() {
+      const numStr = numberInput.value.trim();
+      if (numStr === '') return;
+      const num = Number(numStr);
+      if (Number.isNaN(num) || num < 0 || num > 36) return;
+
+      let color = colorSelect.value;
+      if (!color) color = autoColor(num);
+
+      const isZero = num === 0;
+      const oddEven = isZero ? '-' : (num % 2 === 0 ? 'even' : 'odd');
+      const lowHigh =
+        isZero ? '-' :
+        (num >= 1 && num <= 18 ? 'low' : 'high');
+
+      const spin = {
+        num,
+        color,
+        oddEven,
+        lowHigh,
+        time: new Date().toLocaleTimeString()
+      };
+      spins.push(spin);
+      saveToStorage();
+      renderAll();
+
+      numberInput.value = '';
+      numberInput.focus();
+    }
+
+    function clearAll() {
+      if (!confirm('確定清除所有記錄？')) return;
+      spins = [];
+      saveToStorage();
+      renderAll();
+    }
+
+    function renderAll() {
+      renderTable();
+      renderSummary();
+      renderHotNumbers();
+    }
+
+    function renderTable() {
+      historyBody.innerHTML = '';
+      const reversed = [...spins].reverse();
+      reversed.forEach((spin, idx) => {
+        const tr = document.createElement('tr');
+
+        const indexCell = document.createElement('td');
+        indexCell.textContent = reversed.length - idx;
+
+        const numCell = document.createElement('td');
+        numCell.textContent = spin.num;
+
+        const colorCell = document.createElement('td');
+        const chip = document.createElement('span');
+        chip.classList.add('chip');
+        if (spin.color === 'red') {
+          chip.classList.add('chip-red');
+          chip.textContent = '紅';
+        } else if (spin.color === 'black') {
+          chip.classList.add('chip-black');
+          chip.textContent = '黑';
+        } else {
+          chip.classList.add('chip-green');
+          chip.textContent = '綠';
+        }
+        colorCell.appendChild(chip);
+
+        const oddEvenCell = document.createElement('td');
+        oddEvenCell.textContent = spin.oddEven === 'odd'
+          ? '單'
+          : spin.oddEven === 'even'
+          ? '雙'
+          : '-';
+
+        const lowHighCell = document.createElement('td');
+        lowHighCell.textContent = spin.lowHigh === 'low'
+          ? '小'
+          : spin.lowHigh === 'high'
+          ? '大'
+          : '-';
+
+        const timeCell = document.createElement('td');
+        timeCell.textContent = spin.time || '';
+
+        tr.appendChild(indexCell);
+        tr.appendChild(numCell);
+        tr.appendChild(colorCell);
+        tr.appendChild(oddEvenCell);
+        tr.appendChild(lowHighCell);
+        tr.appendChild(timeCell);
+
+        historyBody.appendChild(tr);
+      });
+
+      spinCountSpan.textContent = spins.length;
+    }
+
+    function pct(part, total) {
+      if (!total) return '0%';
+      return (part / total * 100).toFixed(1) + '%';
+    }
+
+    function renderSummary() {
+      const total = spins.length;
+      let red = 0, black = 0, green = 0;
+      let odd = 0, even = 0;
+      let low = 0, high = 0;
+
+      spins.forEach(s => {
+        if (s.color === 'red') red++;
+        else if (s.color === 'black') black++;
+        else if (s.color === 'green') green++;
+
+        if (s.oddEven === 'odd') odd++;
+        else if (s.oddEven === 'even') even++;
+
+        if (s.lowHigh === 'low') low++;
+        else if (s.lowHigh === 'high') high++;
+      });
+
+      sumTotal.textContent = total;
+      sumRed.textContent = red;
+      sumBlack.textContent = black;
+      sumGreen.textContent = green;
+      sumRedPct.textContent = pct(red, total);
+      sumBlackPct.textContent = pct(black, total);
+      sumGreenPct.textContent = pct(green, total);
+
+      sumOdd.textContent = odd;
+      sumEven.textContent = even;
+      sumOddPct.textContent = pct(odd, total);
+      sumEvenPct.textContent = pct(even, total);
+
+      sumLow.textContent = low;
+      sumHigh.textContent = high;
+      sumLowPct.textContent = pct(low, total);
+      sumHighPct.textContent = pct(high, total);
+    }
+
+    // 熱門數字榜：統計每個 num 出現次數，排序取前 10 [web:65][web:71]
+    function renderHotNumbers() {
+      hotNumbersBody.innerHTML = '';
+      const total = spins.length;
+      if (!total) return;
+
+      const freqMap = {};
+      spins.forEach(s => {
+        const n = s.num;
+        freqMap[n] = (freqMap[n] || 0) + 1;
+      });
+
+      const entries = Object.entries(freqMap)
+        .map(([num, count]) => ({ num: Number(num), count }))
+        .sort((a, b) => {
+          if (b.count !== a.count) return b.count - a.count;
+          return a.num - b.num;
+        });
+
+      const top = entries.slice(0, 10);
+      const maxCount = top[0]?.count || 1;
+
+      top.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+
+        const rankTd = document.createElement('td');
+        rankTd.className = 'hot-rank';
+        rankTd.textContent = idx + 1;
+
+        const numTd = document.createElement('td');
+        numTd.className = 'hot-number';
+        numTd.textContent = item.num;
+
+        const countTd = document.createElement('td');
+        countTd.textContent = item.count;
+
+        const pctTd = document.createElement('td');
+        pctTd.textContent = pct(item.count, total);
+
+        const barTd = document.createElement('td');
+        const barWrap = document.createElement('div');
+        barWrap.className = 'hot-bar-wrap';
+        const bar = document.createElement('div');
+        bar.className = 'hot-bar';
+        bar.style.width = (item.count / maxCount * 100).toFixed(1) + '%';
+        barWrap.appendChild(bar);
+        barTd.appendChild(barWrap);
+
+        tr.appendChild(rankTd);
+        tr.appendChild(numTd);
+        tr.appendChild(countTd);
+        tr.appendChild(pctTd);
+        tr.appendChild(barTd);
+
+        hotNumbersBody.appendChild(tr);
+      });
+    }
+
+    addSpinBtn.addEventListener('click', addSpin);
+    numberInput.addEventListener('keyup', e => {
+      if (e.key === 'Enter') addSpin();
+    });
+    clearAllBtn.addEventListener('click', clearAll);
+
+    loadFromStorage();
+  </script>
+</body>
+</html>
