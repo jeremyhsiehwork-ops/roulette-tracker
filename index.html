@@ -4,100 +4,419 @@
   <meta charset="UTF-8" />
   <title>Roulette Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Google Fonts 類似系統字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
-    h1 { font-size: 24px; margin-bottom: 10px; }
-    h2 { font-size: 18px; margin-top: 20px; }
-    .form-row { margin-bottom: 10px; }
-    label { margin-right: 8px; }
-    input[type="number"] { width: 80px; padding: 4px; }
-    select { margin-right: 8px; padding: 4px; }
-    button { padding: 4px 10px; cursor: pointer; margin-right: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-    th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: center; font-size: 13px; }
-    th { background: #f5f5f5; }
-    .summary-box { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
-    .summary-item { padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; min-width: 140px; }
-    .red { color: #c00; font-weight: 600; }
-    .black { color: #000; font-weight: 600; }
-    .green { color: #060; font-weight: 600; }
-    .footer-note { margin-top: 25px; font-size: 12px; color: #666; }
+    :root {
+      --md-primary: #1a73e8;   /* Google 藍 [web:57][web:54] */
+      --md-primary-dark: #1557b0;
+      --md-surface: #ffffff;
+      --md-bg: #f1f3f4;
+      --md-border: #dadce0;
+      --md-text-main: #202124;
+      --md-text-sub: #5f6368;
+      --md-error: #d93025;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--md-bg);
+      color: var(--md-text-main);
+    }
+
+    .app-shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* 頂部 App Bar */
+    .app-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: var(--md-surface);
+      border-bottom: 1px solid var(--md-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--md-text-sub);
+    }
+
+    /* 卡片容器 */
+    .card {
+      background-color: var(--md-surface);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3),
+                  0 1px 2px rgba(60, 64, 67, 0.15); /* Google 風陰影 [web:56] */
+      padding: 16px 20px;
+      margin-top: 16px;
+      border: 1px solid rgba(223, 225, 229, 0.7);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: var(--md-text-sub);
+    }
+
+    /* 小統計 pill */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--md-border);
+      color: var(--md-text-sub);
+      background-color: #f8f9fa;
+    }
+
+    /* 表單區 */
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 120px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--md-text-sub);
+      margin-bottom: 4px;
+    }
+
+    input[type="number"],
+    select {
+      border-radius: 8px;
+      border: 1px solid var(--md-border);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      background-color: var(--md-surface);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--md-primary);
+      box-shadow: 0 0 0 1px rgba(26, 115, 232, .25);
+    }
+
+    /* 按鈕 Material 風 */
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: box-shadow 0.12s ease, background-color 0.12s ease, transform 0.05s ease;
+      user-select: none;
+    }
+
+    .btn-primary {
+      background-color: var(--md-primary);
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3),
+                  0 1px 2px rgba(60, 64, 67, 0.15);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--md-primary-dark);
+      box-shadow: 0 2px 4px rgba(60, 64, 67, 0.3),
+                  0 2px 3px rgba(60, 64, 67, 0.15);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--md-primary);
+      border: 1px solid var(--md-border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e8f0fe;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 統計 summary grid */
+    .summary-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .summary-item {
+      border-radius: 12px;
+      border: 1px solid var(--md-border);
+      background-color: #f8f9fa;
+      padding: 10px 12px;
+    }
+
+    .summary-label {
+      font-size: 11px;
+      color: var(--md-text-sub);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .summary-sub {
+      font-size: 12px;
+      color: var(--md-text-sub);
+    }
+
+    /* 數據表 */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-text-sub);
+      background-color: #f8f9fa;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fafafa;
+    }
+
+    tr:hover td {
+      background-color: #e8f0fe;
+    }
+
+    .table-container {
+      max-height: 360px;
+      overflow: auto;
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--md-border);
+      background-color: var(--md-surface);
+    }
+
+    /* 顏色 badge */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .chip-red {
+      background-color: #d93025;
+    }
+
+    .chip-black {
+      background-color: #202124;
+    }
+
+    .chip-green {
+      background-color: #188038;
+    }
+
+    /* footer note */
+    .footer-note {
+      margin: 18px 4px 4px;
+      font-size: 11px;
+      color: var(--md-text-sub);
+    }
+
+    @media (max-width: 600px) {
+      .app-bar {
+        padding-inline: 12px;
+      }
+      .card {
+        padding-inline: 14px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>輪盤結果記錄 & 總結</h1>
-  <p>輸入每一鋪輪盤結果，系統會自動計算紅 / 黑 / 綠、單 / 雙、大 / 小的統計。</p>
+  <header class="app-bar">
+    <div>
+      <div class="app-title">Roulette Tracker</div>
+      <div class="app-subtitle">記錄輪盤結果 · 即時統計</div>
+    </div>
+    <div class="pill">
+      Session 局數：<span id="spinCount" style="margin-left:4px;">0</span>
+    </div>
+  </header>
 
-  <!-- 狀態 -->
-  <div class="form-row">
-    <label>局數：</label>
-    <span id="spinCount">0</span>
-  </div>
+  <main class="app-shell">
+    <!-- 輸入＋總覽卡片 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">輸入結果</div>
+        <div class="card-meta">輸入每一局號碼，可選擇或自動判斷顏色</div>
+      </div>
 
-  <!-- 輸入區 -->
-  <div class="form-row">
-    <label for="number">號碼 (0–36)：</label>
-    <input id="number" type="number" min="0" max="36" />
-    <label for="color">顏色：</label>
-    <select id="color">
-      <option value="">自動 (根據號碼)</option>
-      <option value="red">紅</option>
-      <option value="black">黑</option>
-      <option value="green">綠 (0)</option>
-    </select>
-    <button id="addSpin">新增結果</button>
-    <button id="clearAll">清除全部</button>
-  </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label" for="number">號碼 (0–36)</label>
+          <input id="number" type="number" min="0" max="36" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="color">顏色</label>
+          <select id="color">
+            <option value="">自動（根據號碼）</option>
+            <option value="red">紅</option>
+            <option value="black">黑</option>
+            <option value="green">綠 (0)</option>
+          </select>
+        </div>
+      </div>
 
-  <!-- 總結區 -->
-  <h2>統計總結</h2>
-  <div class="summary-box">
-    <div class="summary-item">
-      總局數：<span id="sumTotal">0</span>
-    </div>
-    <div class="summary-item">
-      紅：<span id="sumRed">0</span> (<span id="sumRedPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      黑：<span id="sumBlack">0</span> (<span id="sumBlackPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      綠(0)：<span id="sumGreen">0</span> (<span id="sumGreenPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      單：<span id="sumOdd">0</span> (<span id="sumOddPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      雙：<span id="sumEven">0</span> (<span id="sumEvenPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      小(1–18)：<span id="sumLow">0</span> (<span id="sumLowPct">0%</span>)
-    </div>
-    <div class="summary-item">
-      大(19–36)：<span id="sumHigh">0</span> (<span id="sumHighPct">0%</span>)
-    </div>
-  </div>
+      <div class="form-row">
+        <button class="btn btn-primary" id="addSpin">新增結果</button>
+        <button class="btn btn-secondary" id="clearAll">清除全部</button>
+      </div>
 
-  <!-- 歷史記錄表 -->
-  <h2>歷史記錄</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>號碼</th>
-        <th>顏色</th>
-        <th>單/雙</th>
-        <th>大/小</th>
-        <th>時間</th>
-      </tr>
-    </thead>
-    <tbody id="historyBody"></tbody>
-  </table>
+      <div class="summary-box">
+        <div class="summary-item">
+          <div class="summary-label">總局數</div>
+          <div class="summary-value" id="sumTotal">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">紅</div>
+          <div class="summary-value" id="sumRed">0</div>
+          <div class="summary-sub" id="sumRedPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">黑</div>
+          <div class="summary-value" id="sumBlack">0</div>
+          <div class="summary-sub" id="sumBlackPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">綠 (0)</div>
+          <div class="summary-value" id="sumGreen">0</div>
+          <div class="summary-sub" id="sumGreenPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">單</div>
+          <div class="summary-value" id="sumOdd">0</div>
+          <div class="summary-sub" id="sumOddPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">雙</div>
+          <div class="summary-value" id="sumEven">0</div>
+          <div class="summary-sub" id="sumEvenPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">小 (1–18)</div>
+          <div class="summary-value" id="sumLow">0</div>
+          <div class="summary-sub" id="sumLowPct">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">大 (19–36)</div>
+          <div class="summary-value" id="sumHigh">0</div>
+          <div class="summary-sub" id="sumHighPct">0%</div>
+        </div>
+      </div>
+    </section>
 
-  <p class="footer-note">提示：資料只會儲存在你瀏覽器的本機 (localStorage)，換裝置或清除瀏覽器資料會令記錄消失。</p>
+    <!-- 歷史記錄卡片 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">歷史記錄</div>
+        <div class="card-meta">最新結果會顯示在最上方</div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>號碼</th>
+              <th>顏色</th>
+              <th>單 / 雙</th>
+              <th>大 / 小</th>
+              <th>時間</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+
+      <div class="footer-note">
+        資料儲存在瀏覽器本機（localStorage）。更換裝置或清除瀏覽器資料會清空記錄。
+      </div>
+    </section>
+  </main>
 
   <script>
-    // 典型歐式輪盤紅色號碼列表
+    // 典型歐式輪盤紅色號碼列表 [web:51][web:57]
     const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     const numberInput = document.getElementById('number');
@@ -115,167 +434,4 @@
     const sumBlackPct = document.getElementById('sumBlackPct');
     const sumGreenPct = document.getElementById('sumGreenPct');
     const sumOdd = document.getElementById('sumOdd');
-    const sumEven = document.getElementById('sumEven');
-    const sumOddPct = document.getElementById('sumOddPct');
-    const sumEvenPct = document.getElementById('sumEvenPct');
-    const sumLow = document.getElementById('sumLow');
-    const sumHigh = document.getElementById('sumHigh');
-    const sumLowPct = document.getElementById('sumLowPct');
-    const sumHighPct = document.getElementById('sumHighPct');
-
-    let spins = [];
-
-    function loadFromStorage() {
-      const saved = localStorage.getItem('roulette_spins_v1');
-      if (saved) {
-        try {
-          spins = JSON.parse(saved);
-        } catch (e) {
-          spins = [];
-        }
-      }
-      renderAll();
-    }
-
-    function saveToStorage() {
-      localStorage.setItem('roulette_spins_v1', JSON.stringify(spins));
-    }
-
-    function autoColor(num) {
-      if (num === 0) return 'green';
-      return RED_NUMBERS.has(num) ? 'red' : 'black';
-    }
-
-    function addSpin() {
-      const numStr = numberInput.value.trim();
-      if (numStr === '') return;
-      const num = Number(numStr);
-      if (Number.isNaN(num) || num < 0 || num > 36) return;
-
-      let color = colorSelect.value;
-      if (!color) color = autoColor(num);
-
-      const isZero = num === 0;
-      const oddEven = isZero ? '-' : (num % 2 === 0 ? 'even' : 'odd');
-      const lowHigh =
-        isZero ? '-' :
-        (num >= 1 && num <= 18 ? 'low' : 'high');
-
-      const spin = {
-        num,
-        color,
-        oddEven,
-        lowHigh,
-        time: new Date().toLocaleTimeString()
-      };
-      spins.push(spin);
-      saveToStorage();
-      renderAll();
-
-      numberInput.value = '';
-      numberInput.focus();
-    }
-
-    function clearAll() {
-      if (!confirm('確定清除所有記錄？')) return;
-      spins = [];
-      saveToStorage();
-      renderAll();
-    }
-
-    function renderAll() {
-      renderTable();
-      renderSummary();
-    }
-
-    function renderTable() {
-      historyBody.innerHTML = '';
-      // 最新一局顯示在最上
-      const reversed = [...spins].reverse();
-      reversed.forEach((spin, idx) => {
-        const tr = document.createElement('tr');
-
-        const indexCell = document.createElement('td');
-        indexCell.textContent = reversed.length - idx;
-
-        const numCell = document.createElement('td');
-        numCell.textContent = spin.num;
-
-        const colorCell = document.createElement('td');
-        colorCell.textContent = spin.color;
-        colorCell.classList.add(spin.color); // 用 CSS 顏色
-
-        const oddEvenCell = document.createElement('td');
-        oddEvenCell.textContent = spin.oddEven;
-
-        const lowHighCell = document.createElement('td');
-        lowHighCell.textContent = spin.lowHigh;
-
-        const timeCell = document.createElement('td');
-        timeCell.textContent = spin.time || '';
-
-        tr.appendChild(indexCell);
-        tr.appendChild(numCell);
-        tr.appendChild(colorCell);
-        tr.appendChild(oddEvenCell);
-        tr.appendChild(lowHighCell);
-        tr.appendChild(timeCell);
-
-        historyBody.appendChild(tr);
-      });
-
-      spinCountSpan.textContent = spins.length;
-    }
-
-    function pct(part, total) {
-      if (!total) return '0%';
-      return (part / total * 100).toFixed(1) + '%';
-    }
-
-    function renderSummary() {
-      const total = spins.length;
-      let red = 0, black = 0, green = 0;
-      let odd = 0, even = 0;
-      let low = 0, high = 0;
-
-      spins.forEach(s => {
-        if (s.color === 'red') red++;
-        else if (s.color === 'black') black++;
-        else if (s.color === 'green') green++;
-
-        if (s.oddEven === 'odd') odd++;
-        else if (s.oddEven === 'even') even++;
-
-        if (s.lowHigh === 'low') low++;
-        else if (s.lowHigh === 'high') high++;
-      });
-
-      sumTotal.textContent = total;
-      sumRed.textContent = red;
-      sumBlack.textContent = black;
-      sumGreen.textContent = green;
-      sumRedPct.textContent = pct(red, total);
-      sumBlackPct.textContent = pct(black, total);
-      sumGreenPct.textContent = pct(green, total);
-
-      sumOdd.textContent = odd;
-      sumEven.textContent = even;
-      sumOddPct.textContent = pct(odd, total);
-      sumEvenPct.textContent = pct(even, total);
-
-      sumLow.textContent = low;
-      sumHigh.textContent = high;
-      sumLowPct.textContent = pct(low, total);
-      sumHighPct.textContent = pct(high, total);
-    }
-
-    addSpinBtn.addEventListener('click', addSpin);
-    numberInput.addEventListener('keyup', e => {
-      if (e.key === 'Enter') addSpin();
-    });
-    clearAllBtn.addEventListener('click', clearAll);
-
-    loadFromStorage();
-  </script>
-</body>
-</html>
+    const sumEven = document.getElementById('sumEve
